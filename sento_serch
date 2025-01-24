@@ -1,0 +1,20 @@
+#任意の市区町村に存在する先頭を検索するクエリ
+
+PREFIX schema: <http://schema.org/>
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT (?name AS ?銭湯) (?address AS ?住所)
+WHERE {
+ ?spot rdf:type ?type ;
+       rdfs:label ?name ;
+       dbo:location ?loc .
+ ?type rdfs:label "銭湯" .
+
+ ?loc dbo:city ?city .
+ ?city rdfs:label "尼崎市" .
+
+ ?loc schema:address ?address
+}
