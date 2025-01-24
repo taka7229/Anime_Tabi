@@ -1,0 +1,34 @@
+#特定の位置から500ｍ以内のカフェを検索するクエリ
+
+PREFIX schema: <http://schema.org/>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT (?name AS ?店名) (?address AS ?住所) 
+       
+WHERE {
+  ?spot rdf:type ?type ;
+        rdfs:label ?name ;
+        dbo:location ?loc .
+  ?type rdfs:label "カフェ".
+ 
+  ?loc schema:address ?address ;
+        geo:lat ?lat ;
+        geo:long ?long .
+
+#調べた聖地の緯度経度をここで入力する
+  BIND(35.6818718 AS ?target_lat)
+  BIND(139.7658469 AS ?target_long)
+ 
+  BIND(xsd:double(str(?lat)) AS ?lat_double)
+  BIND(xsd:double(str(?long)) AS ?long_double)
+ 
+  # ユークリッド距離の二乗を計算
+  BIND((?lat_double - ?target_lat) * (?lat_double - ?target_lat) +
+        (?long_double - ?target_long) * (?long_double - ?target_long) AS ?dist)
+}
+ORDER BY ?dist
+LIMIT 10
