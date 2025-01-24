@@ -1,0 +1,29 @@
+PREFIX schema: <http://schema.org/>
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT
+(?city_label AS ?市区町村)
+   (GROUP_CONCAT(DISTINCT CONCAT(?anime_label, " (", STR(?anime_spot_count), ")"); SEPARATOR=", ") AS ?アニメ)
+   (CONCAT(STR(SUM(?anime_spot_count)), "箇所") AS ?聖地数)
+WHERE {
+   {
+       SELECT ?city_label ?anime_label (COUNT(?spot) AS ?anime_spot_count)
+       WHERE {
+           # 聖地スポットの取得
+           ?spot schema:about ?anime ;
+                 schema:category "聖地" ;
+                 dbo:location ?location .
+           
+           # アニメのタイトル名取得
+           ?anime rdfs:label ?anime_label .
+           
+           # 市区町村の情報取得
+           ?location dbo:city ?city .
+           ?city rdfs:label ?city_label .
+       }
+       GROUP BY ?city_label ?anime_label
+   }
+}
+GROUP BY ?city_label
+ORDER BY ?city_label
