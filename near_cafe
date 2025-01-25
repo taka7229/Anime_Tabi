@@ -31,4 +31,5 @@ WHERE {
         (?long_double - ?target_long) * (?long_double - ?target_long) AS ?dist)
 }
 ORDER BY ?dist
+HAVING(?dist < 0.005)
 LIMIT 10
