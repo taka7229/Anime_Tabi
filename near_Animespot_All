@@ -1,0 +1,44 @@
+#東京駅から１キロ以内を出力するコード
+
+PREFIX schema: <http://schema.org/>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT
+   (?spot_label AS ?聖地名)
+   (?anime_title AS ?アニメ名)
+   (?comment AS ?詳細情報)
+   (?episode AS ?エピソード)
+   (?time AS ?時間)
+   (?address AS ?住所)
+   (CONCAT(STR(?lat), ', ', STR(?long)) AS ?緯度経度)
+WHERE {
+ ?spot schema:category "聖地" ;
+   rdfs:label ?spot_label ;
+   dbo:location ?loc ;
+   schema:about ?anime .
+
+ ?anime rdfs:label ?anime_title .
+ 
+ ?spot dbo:scene ?scene .
+ ?scene rdfs:comment ?comment.
+ 
+ ?scene schema:time ?time .
+ ?scene schema:episode ?episode.
+
+ ?loc schema:address ?address ;
+   geo:lat ?lat ;
+   geo:long ?long .
+
+ BIND(35.6812362 AS ?tokyo_lat)
+ BIND(139.7671248 AS ?tokyo_long)
+
+ BIND(xsd:double(str(?lat)) AS ?lat_double)
+ BIND(xsd:double(str(?long)) AS ?long_double)
+
+ BIND((?lat_double - ?tokyo_lat) * (?lat_double - ?tokyo_lat) +
+   (?long_double - ?tokyo_long) * (?long_double - ?tokyo_long) AS ?dist)
+}
+HAVING(?dist < 0.05)
+ORDER BY ?dist
