@@ -1,0 +1,15 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?type_label (STR(COUNT(?spot)) as ?count)
+WHERE {
+  # スポットとそのタイプを取得
+  ?spot a ?type .
+  ?type rdfs:label ?type_label .
+ 
+}
+GROUP BY ?type_label
+ORDER BY DESC(COUNT(?spot)) ?type_label
