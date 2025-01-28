@@ -20,10 +20,9 @@ WHERE {
  ?anime rdfs:label ?anime_title .
  
  ?spot dbo:scene ?scene .
- OPTIONAL {?scene rdfs:comment ?comment}
- 
- OPTIONAL { ?scene schema:time ?time }
- OPTIONAL { ?scene schema:episode ?episode }
+ ?scene rdfs:comment ?comment.
+ ?scene schema:time ?time .
+ ?scene schema:episode ?episode .
 
  ?loc schema:address ?address ;
    geo:lat ?lat ;
