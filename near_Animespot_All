@@ -1,5 +1,3 @@
-#東京駅から１キロ以内を出力するコード
-
 PREFIX schema: <http://schema.org/>
 PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX dbo: <http://dbpedia.org/ontology/>
@@ -22,10 +20,10 @@ WHERE {
  ?anime rdfs:label ?anime_title .
  
  ?spot dbo:scene ?scene .
- ?scene rdfs:comment ?comment.
+ OPTIONAL {?scene rdfs:comment ?comment}
  
- ?scene schema:time ?time .
- ?scene schema:episode ?episode.
+ OPTIONAL { ?scene schema:time ?time }
+ OPTIONAL { ?scene schema:episode ?episode }
 
  ?loc schema:address ?address ;
    geo:lat ?lat ;
