@@ -1,0 +1,16 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+SELECT DISTINCT (STR(?label) AS ?genre_Label)
+WHERE {
+  ?spot schema:about ?anime.
+  ?anime rdfs:label ?anime_Label.
+ 
+  SERVICE <https://query.wikidata.org/sparql> {
+	?anime ?p ?v_genre .
+	?v_genre <http://www.wikidata.org/prop/statement/P136> ?genre .
+	?genre rdfs:label ?label .
+	FILTER(LANG(?label) = "ja")
+  }
+}
+ORDER BY ?genre_Label
+
