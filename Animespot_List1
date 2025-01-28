@@ -1,0 +1,48 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+
+SELECT DISTINCT
+(?spot_label AS ?聖地名)
+(?anime_title AS ?アニメ名)
+(?scene_comment AS ?コメント)
+(?episode AS ?エピソード)
+(?scene_time AS ?時間)
+(?prefecture AS ?都道府県)
+(?address AS ?住所)
+(CONCAT(STR(?lat), ', ', STR(?long)) AS ?緯度経度)
+WHERE {
+  # アニメのタイトルを取得
+  ?spot rdfs:label ?spot_label.
+ 
+  # 聖地スポットを取得
+  ?spot schema:about ?anime ;
+    	schema:category "聖地" ;
+    	dbo:location ?location .
+ 
+  ?anime rdfs:label ?anime_title .
+ 
+  # 場所の情報を取得
+  ?location dbo:region ?prefectureEntity ;
+	　  geo:lat ?lat;
+      geo:long ?logn;	
+       	schema:address ?address .
+ 
+  # 都道府県名を取得
+  ?prefectureEntity rdfs:label ?prefecture .
+ 
+ 
+  OPTIONAL {
+	?spot dbo:scene ?scene .
+	OPTIONAL { ?scene rdfs:comment ?scene_comment }
+	OPTIONAL { ?scene schema:episode ?episode }
+	OPTIONAL { ?scene schema:time ?scene_time }
+  }
+ 
+  # アニメ名と都道府県名でフィルター
+  FILTER(CONTAINS(LCASE(str(?anime_title)), LCASE("けいおん")))
+  FILTER(CONTAINS(str(?prefecture), "京都府"))
+}
+ORDER BY ?spot ?scene_time
