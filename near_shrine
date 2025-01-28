@@ -1,0 +1,47 @@
+PREFIX schema: <http://schema.org/>
+PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT
+   (?spot_label AS ?スポット名)
+   (?anime_title AS ?関連アニメ)
+   (?address AS ?住所)
+   (CONCAT(STR(?lat), ', ', STR(?long)) AS ?緯度経度)
+WHERE {
+  # スポットの基本情報
+  ?spot rdfs:label ?spot_label ;
+    	a ?type ;
+    	dbo:location ?loc .
+   	 
+  # タイプのラベルを取得してフィルター
+  ?type rdfs:label ?type_label .
+  FILTER(?type_label = "神社")
+ 
+  # 位置情報
+  ?loc schema:address ?address ;
+   	geo:lat ?lat ;
+   	geo:long ?long .
+  	 
+  # アニメ情報があれば取得
+  OPTIONAL {
+	?spot schema:about ?anime .
+	?anime rdfs:label ?anime_title .
+  }
+ 
+  # 中心の座標を設定 
+  BIND(33.8969721 AS ?target_lat)
+  BIND(135.1295957 AS ?target_long)
+ 
+  # 緯度経度を数値型に変換
+  BIND(xsd:double(str(?lat)) AS ?lat_double)
+  BIND(xsd:double(str(?long)) AS ?long_double)
+ 
+  # ユークリッド距離の2乗を計算
+  BIND((?lat_double - ?target_lat) * (?lat_double - ?target_lat) +
+   	(?long_double - ?target_long) * (?long_double - ?target_long) AS ?dist)
+}
+
+HAVING(?dist < 0.001)
+ORDER BY ?dist
