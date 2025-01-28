@@ -1,0 +1,20 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX dbo: <http://dbpedia.org/ontology/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+SELECT DISTINCT ?animeLabel (SUBSTR(STR(?start), 1, 10) AS ?start_date) (COUNT(DISTINCT ?spot) AS ?sacred_spot_count)
+WHERE {
+ # アニメURIを取得
+ ?spot schema:about ?anime .
+ ?anime rdfs:label ?animeLabel.
+ 
+ # 開始日
+ SERVICE <https://query.wikidata.org/sparql> {
+   ?anime <http://www.wikidata.org/prop/P580> ?start_statement.
+   ?start_statement <http://www.wikidata.org/prop/statement/P580> ?start.
+ }
+ 
+ # 2014年から2017年の放送でフィルタリング
+ FILTER(YEAR(xsd:dateTime(?start)) >= 2014 && YEAR(xsd:dateTime(?start)) <= 2017)
+}
+GROUP BY ?animeLabel ?start
