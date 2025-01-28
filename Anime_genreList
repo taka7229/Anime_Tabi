@@ -1,0 +1,22 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX schema: <http://schema.org/>
+PREFIX dbo: <http://dbpedia.org/ontology/>
+
+SELECT DISTINCT ?animeLabel ?genre_Label (STR(COUNT(DISTINCT ?spot)) as ?count)
+WHERE {
+  # アニメと聖地の関連付け
+  ?spot schema:about ?anime .
+  ?anime rdfs:label ?animeLabel .
+ 
+  # ジャンル情報の取得
+  SERVICE <https://query.wikidata.org/sparql> {
+	?anime ?p ?v_genre .
+	?v_genre <http://www.wikidata.org/prop/statement/P136> ?genre .
+	?genre rdfs:label ?genre_Label .
+	FILTER(LANG(?genre_Label) = "ja")
+	# SFを含むジャンルの部分一致フィルタリング
+	FILTER(CONTAINS(?genre_Label, "SF"))
+  }
+}
+GROUP BY ?animeLabel
+ORDER BY DESC(?sacred_spot_count)
