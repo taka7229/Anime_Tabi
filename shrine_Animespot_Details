@@ -5,48 +5,44 @@ PREFIX dbo: <http://dbpedia.org/ontology/>
 PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 
 SELECT DISTINCT
-(?spot_label AS ?聖地名)
-(?anime_title AS ?アニメ名)
-(?scene_comment AS ?コメント)
-(?scene_time AS ?時間)
-(?scene_episode  AS ?エピソード)
-(?prefecture AS ?都道府県)
-(?city AS ?市区町村)
-(?address AS ?住所)
-(CONCAT(STR(?lat), ', ', STR(?long)) AS ?緯度経度)
+?spot_label
+?anime_title
+?scene_comment
+?scene_time
+?scene_episode
+?prefecture
+?city
+?address
+(CONCAT(STR(?lat), ', ', STR(?long)) AS ?coordinates)
 WHERE {
-  # 聖地の基本情報を取得
-  ?spot rdfs:label ?spot_label ;
-    	schema:category "聖地" ;
-    	a ?type ;
-    	schema:about ?anime ;
-    	dbo:location ?location .
+  # 最も重要な条件を先頭に配置
+  ?spot a ?type ;
+        rdfs:label ?spot_label ;
+        schema:category "聖地" ;
+        schema:about ?anime ;
+        dbo:location ?location .
    	 
-  # タイプのラベルを取得してフィルター
-  ?type rdfs:label ?type_label .
-  FILTER(?type_label = "神社")
+  # タイプフィルター
+  ?type rdfs:label "神社" .
    	 
-  # アニメ情報を取得
+  # 基本情報
   ?anime rdfs:label ?anime_title .
- 
-  # 場所の情報を取得
   ?location dbo:region ?prefectureEntity ;
-        	dbo:city ?cityEntity;
-        	geo:lat ?lat;
-        	geo:long ?long;
-       	schema:address ?address .
+           dbo:city ?cityEntity ;
+           geo:lat ?lat ;
+           geo:long ?long ;
+           schema:address ?address .
  
-  # 都道府県名を取得
   ?prefectureEntity rdfs:label ?prefecture .
-  ?cityEntity rdfs:label ?city.
+  ?cityEntity rdfs:label ?city .
  
-  # シーン情報があれば取得（オプション）
-  
-	OPTIONAL { ?spot dbo:scene ?scene }
-	OPTIONAL { ?scene rdfs:comment ?scene_comment }
-	OPTIONAL { ?scene schema:episode ?scene_episode }
-	OPTIONAL { ?scene schema:time ?scene_time }
-  
+  # オプショナルな情報を最後に
+  OPTIONAL { 
+    ?spot dbo:scene ?scene .
+    OPTIONAL { ?scene rdfs:comment ?scene_comment }
+    OPTIONAL { ?scene schema:episode ?scene_episode }
+    OPTIONAL { ?scene schema:time ?scene_time }
+  }
 }
-ORDER BY ASC(?anime_title) 
-
+ORDER BY ?anime_title
+LIMIT 1000
