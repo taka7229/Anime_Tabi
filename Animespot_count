@@ -6,27 +6,25 @@ PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 SELECT 
-(?anime_titlel AS ?アニメ名)
-(?prefecture AS ?都道府県)
+(?anime_title AS ?anime_name)
+(?prefecture AS ?prefecture_name)
 (STR(COUNT(DISTINCT ?spot)) as ?spot_count)
-
 WHERE {
-  # アニメのタイトルを取得
+  # Get anime title
   ?anime rdfs:label ?anime_title .
  
-  # 聖地スポットを取得
+  # Get sacred spots
   ?spot schema:about ?anime ;
-    	schema:category "聖地" ;
-    	dbo:location ?location .
+        schema:category "聖地" ;
+        dbo:location ?location .
  
-  
+  # Get location and prefecture
   ?location dbo:region ?prefectureEntity .
- 
-  # 都道府県名を取得
   ?prefectureEntity rdfs:label ?prefecture .
  
-  # アニメ名で部分一致フィルター
-  FILTER(CONTAINS(LCASE(str(?anime_title)), LCASE("けいおん")))
+  # Filter by anime title
+  FILTER(CONTAINS(LCASE(str(?anime_title)), "けいおん"))
 }
 GROUP BY ?anime_title ?prefecture
 ORDER BY ?anime_title ?prefecture
+LIMIT 100
