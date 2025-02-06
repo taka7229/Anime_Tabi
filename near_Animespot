@@ -40,5 +40,6 @@ WHERE {
  BIND((?lat_double - ?tokyo_lat) * (?lat_double - ?tokyo_lat) +
    (?long_double - ?tokyo_long) * (?long_double - ?tokyo_long) AS ?dist)
 }
+GROUP BY ?dist
 HAVING(?dist < 0.05)
 ORDER BY ?dist
