@@ -42,6 +42,6 @@ WHERE {
   BIND((?lat_double - ?target_lat) * (?lat_double - ?target_lat) +
    	(?long_double - ?target_long) * (?long_double - ?target_long) AS ?dist)
 }
-
+GROUP BY ?dist
 HAVING(?dist < 0.001)
 ORDER BY ?dist
